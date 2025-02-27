@@ -35,15 +35,20 @@ export default function ChatWindow({ currentUser, friend }) {
         )`
       },
       (payload) => {
-        setMessages(prev => [...prev, payload.new]);
+        // Filter duplikat pesan
+        setMessages(prev => {
+          const exists = prev.some(msg => msg.id === payload.new.id);
+          return exists ? prev : [...prev, payload.new];
+        });
       }
     )
     .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [currentUser, friend]);
+    // Perbaikan posisi cleanup function
+    return () => {
+        supabase.removeChannel(channel);
+    };
+    }, [currentUser, friend]); // Pastikan dependency array benar
 
 const sendMessage = async () => {
     if (!newMessage.trim()) return;
